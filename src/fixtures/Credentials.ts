@@ -11,4 +11,8 @@ export const TestUsers = {
         username: "locked_out_user",
         password: "secret_sauce"
     },
+    nonExistentUser: {
+        username: "non_existent",
+        password: "secret_sauce"
+    }
 }
