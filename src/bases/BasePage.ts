@@ -11,13 +11,11 @@ export class BasePage {
         return this.page.locator(locator)
     }
 
-    protected Set(locator: Locator, text: string) {
-        locator.fill(text);
+    protected async Set(locator: Locator, text: string) {
+        await locator.fill(text);
     }
 
     protected async ClickOn(locator: Locator) {
-        console.log(`Before clicking ${locator}`);
         await locator.click({timeout: 5000});
-        console.log(`After clicking ${locator}`);
     }
 }

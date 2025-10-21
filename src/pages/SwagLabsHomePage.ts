@@ -20,12 +20,11 @@ export class SwagLabsHomePage extends BasePage {
         await this.Set(this._passwordField, password)
     }
 
-    getErrorMessage (){
-        return this.FindElement((this._errorMessage).toString());
+    async getErrorMessage (): Promise<string> {
+        return await this._errorMessage.textContent() || "";
     }
 
     async clickLoginButton (){
-        //this._loginButton.waitFor({state: "visible", timeout: 5000})
        await this.ClickOn(this._loginButton);
     }
 }

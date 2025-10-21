@@ -9,6 +9,7 @@ export class BaseTest {
 
   async setup(page: Page) {
     await page.goto(this._url);
+    
     this.basePage = new BasePage(page);
     this.swagLabsHomePage = new SwagLabsHomePage(page);
   }
