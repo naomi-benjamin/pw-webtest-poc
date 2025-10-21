@@ -12,12 +12,12 @@ export class SwagLabsHomePage extends BasePage {
         super(HomePage);
     }
 
-    setUsername (username : string) {
-        this.Set(this._usernameField, username)
+    async setUsername (username : string) {
+        await this.Set(this._usernameField, username)
     }
 
-    setPassword (password : string) {
-        this.Set(this._passwordField, password)
+    async setPassword (password : string) {
+        await this.Set(this._passwordField, password)
     }
 
     getErrorMessage (){

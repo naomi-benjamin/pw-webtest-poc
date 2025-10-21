@@ -7,7 +7,7 @@ export class BasePage {
         this.page = page;
     }
 
-     protected FindElement(locator: string) {
+    protected FindElement(locator: string) {
         return this.page.locator(locator)
     }
 
@@ -17,9 +17,7 @@ export class BasePage {
 
     protected async ClickOn(locator: Locator) {
         console.log(`Before clicking ${locator}`);
-        //await locator.click({timeout: 5000});
-        //console.log(`${this.page.getByPlaceholder('Username')}}`)
-        await this.page.getByPlaceholder('Username').click();
+        await locator.click({timeout: 5000});
         console.log(`After clicking ${locator}`);
     }
 }
