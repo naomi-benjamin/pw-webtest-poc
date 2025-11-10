@@ -27,4 +27,8 @@ export class LoginFacade {
         const error = await this.base.swagLabsHomePage.getErrorMessage();
         expect(error.trim()).toBe(message);
     }
+
+    async CheckIfHomePageIsVisible(){
+        return await this.base.swagLabsHomePage.checkForLoginLogo();
+    }
 }

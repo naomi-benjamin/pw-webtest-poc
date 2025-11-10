@@ -15,7 +15,6 @@ test.describe("Login Tests", () => {
         await base.setup(page);
         loginFacade = new LoginFacade(base);
         swagLabsInventoryPage = new SwagLabsInventoryPage(page);
-
     });
 
     test("Login with blank username and password shows correct error", async () => {

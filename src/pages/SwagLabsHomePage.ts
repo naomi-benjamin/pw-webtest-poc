@@ -7,6 +7,7 @@ export class SwagLabsHomePage extends BasePage {
     private _passwordField = this.FindElement("#password");
     private _loginButton = this.FindElement("#login-button");
     private _errorMessage = this.FindElement("div[class^='error-message-container']");
+    private _loginLogo = this.FindElement(".login_logo");
 
     constructor (HomePage: Page){
         super(HomePage);
@@ -26,5 +27,9 @@ export class SwagLabsHomePage extends BasePage {
 
     async clickLoginButton (){
        await this.ClickOn(this._loginButton);
+    }
+
+    async checkForLoginLogo(){
+        return await this._loginLogo.isVisible();
     }
 }
