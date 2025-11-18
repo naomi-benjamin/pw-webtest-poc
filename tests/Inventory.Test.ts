@@ -27,7 +27,7 @@ test.describe("Inventory Tests", () => {
         expect(count).toEqual(currentCount + 1);
     });
 
-    test("Login with standard user and logout", async () => {
+    test("Login with standard user and logout and be directed to home page", async () => {
         await loginFacade.LoginAsStandardUser();
         await inventoryFacade.LogOut();
 
