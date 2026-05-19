@@ -212,15 +212,70 @@ export const unauthTest = base.extend<UnauthenticatedFixtures>({
 export { expect } from '@playwright/test';
 ```
 
+### Environment Variables
+
+Sensitive values and environment-specific config come from env vars, not hardcoded constants. Create a `.env` file locally (gitignored) and set the same vars as secrets in CI.
+
+```bash
+# .env (gitignored)
+BASE_URL=https://your-sut-url.com
+STANDARD_USER=your_username
+STANDARD_PASSWORD=your_password
+ADMIN_USER=admin_username
+ADMIN_PASSWORD=admin_password
+# add one pair per persona
+```
+
+Commit a `.env.example` with placeholder values so new team members know what to set:
+
+```bash
+# .env.example (committed)
+BASE_URL=
+STANDARD_USER=
+STANDARD_PASSWORD=
+ADMIN_USER=
+ADMIN_PASSWORD=
+```
+
+Add `.env` to `.gitignore`.
+
+Install `dotenv` to load the file automatically:
+
+```bash
+npm install -D dotenv
+```
+
+### Credentials
+
+Read from env vars, with no hardcoded fallback passwords in the work repo:
+
+```ts
+// src/fixtures/Credentials.ts
+import 'dotenv/config';
+
+export const TestUsers = {
+    standardUser: {
+        username: process.env.STANDARD_USER ?? '',
+        password: process.env.STANDARD_PASSWORD ?? '',
+    },
+    adminUser: {
+        username: process.env.ADMIN_USER ?? '',
+        password: process.env.ADMIN_PASSWORD ?? '',
+    },
+    // add one entry per persona
+}
+```
+
 ### Playwright Config
 
-- Set `baseURL` to the SUT base URL.
+- `baseURL` comes from `BASE_URL` env var.
 - The `setup` project points to `src/setup/` and has no `storageState` (it creates the auth files).
 - All other projects list `'setup'` as a dependency. They do NOT set `storageState` — fixtures handle that.
 - Use `...(process.env.CI ? { workers: 1 } : {})` spread pattern for workers (required when `exactOptionalPropertyTypes: true`).
 
 ```ts
 import { defineConfig, devices } from '@playwright/test';
+import 'dotenv/config';
 
 export default defineConfig({
     testDir: './tests',
@@ -231,7 +286,7 @@ export default defineConfig({
     ...(process.env.CI ? { workers: 1 } : {}),
     reporter: [['html', { outputFolder: 'reports/results' }]],
     use: {
-        baseURL: 'https://your-sut-url.com', // <-- fill in
+        baseURL: process.env.BASE_URL ?? 'https://your-sut-url.com',
         trace: 'on-first-retry',
         screenshot: 'only-on-failure',
         video: 'on-first-retry',
@@ -328,9 +383,9 @@ adminTest.describe("Feature Tests — Admin User", () => {
 
 Fill these in before handing off to Claude:
 
-- **SUT base URL** — e.g. `https://app.yourcompany.com`
+- **SUT base URL** — e.g. `https://app.yourcompany.com` (goes in `.env` as `BASE_URL`)
 - **Post-login URL pattern** — what `waitForURL` should match after a successful login
-- **User personas** — username, password, and role name for each
+- **User personas** — role name for each (credentials go in `.env`, not shared with Claude)
 - **Pages to implement first** — name, URL path, and key elements/interactions for each
 - **Enums needed** — any typed item lists (e.g. product names, record types, menu items)
 - **First test scenarios** — what flows to cover in the first test files
