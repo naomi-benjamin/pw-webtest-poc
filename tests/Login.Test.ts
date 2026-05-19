@@ -1,55 +1,41 @@
-import { expect, test } from "@playwright/test";
-import { BaseTest } from "../src/bases/BaseTest.js";
-import { SwagLabsHomePageErrorMessages as Errors } from "../src/fixtures/ErrorMessages.js";
-import { TestUsers } from "../src/fixtures/Credentials.js";
-import { LoginFacade } from "../src/facades/LoginFacade.js";
-import { SwagLabsInventoryPage } from "../src/pages/SwagLabsInventoryPage.js";
+import { unauthTest, expect } from '../src/fixtures/test-fixtures.js';
+import { SwagLabsInventoryPage } from '../src/pages/SwagLabsInventoryPage.js';
+import { SwagLabsHomePageErrorMessages as Errors } from '../src/fixtures/ErrorMessages.js';
+import { TestUsers } from '../src/fixtures/Credentials.js';
 
-test.describe("Login Tests", () => {
-    let base!: BaseTest;
-    let loginFacade!: LoginFacade;
-    let swagLabsInventoryPage!: SwagLabsInventoryPage;
+unauthTest.describe("Login Tests", () => {
 
-    test.beforeEach(async ({ page }) => {
-        base = new BaseTest();
-        await base.setup(page);
-        loginFacade = new LoginFacade(base);
-        swagLabsInventoryPage = new SwagLabsInventoryPage(page);
+    unauthTest("Login with blank username and password shows correct error", async ({ homePage }) => {
+        await homePage.clickLoginButton();
+        expect((await homePage.getErrorMessage()).trim()).toBe(Errors.blankUsername);
     });
 
-    test("Login with blank username and password shows correct error", async () => {
-        await base.swagLabsHomePage.clickLoginButton();
-        loginFacade.ExpectLoginFailure(Errors.blankUsername);
+    unauthTest("Login with blank password shows the expected error", async ({ homePage }) => {
+        await homePage.setUsername(TestUsers.standardUser.username);
+        await homePage.clickLoginButton();
+        expect((await homePage.getErrorMessage()).trim()).toBe(Errors.blankPassword);
     });
 
-
-    test("Login with blank password shows the expected error", async () => {
-        await base.swagLabsHomePage.setUsername(TestUsers.standardUser.username);
-        await base.swagLabsHomePage.clickLoginButton();
-        loginFacade.ExpectLoginFailure(Errors.blankPassword);
+    unauthTest("Login with blank username shows the expected error", async ({ homePage }) => {
+        await homePage.setPassword(TestUsers.standardUser.password);
+        await homePage.clickLoginButton();
+        expect((await homePage.getErrorMessage()).trim()).toBe(Errors.blankUsername);
     });
 
-    test("Login with blank username shows the expected error", async () => {
-        await base.swagLabsHomePage.setPassword(TestUsers.standardUser.password);
-        await base.swagLabsHomePage.clickLoginButton();
-        loginFacade.ExpectLoginFailure(Errors.blankUsername);
+    unauthTest("Login with locked out user shows the expected error", async ({ loginFacade, homePage }) => {
+        await loginFacade.login(TestUsers.lockedOutUser.username, TestUsers.lockedOutUser.password);
+        expect((await homePage.getErrorMessage()).trim()).toBe(Errors.lockedOutError);
     });
 
-    test("Login with locked out user shows the expected error", async () => {
-        await loginFacade.Login(TestUsers.lockedOutUser.username, TestUsers.lockedOutUser.password);
-        loginFacade.ExpectLoginFailure(Errors.lockedOutError);
+    unauthTest("Login with incorrect password shows the expected error", async ({ loginFacade, homePage }) => {
+        await loginFacade.login(TestUsers.incorrectPassword.username, TestUsers.incorrectPassword.password);
+        expect((await homePage.getErrorMessage()).trim()).toBe(Errors.incorrectCredentials);
     });
 
-    test("Login with incorrect password", async () => {
-        await loginFacade.Login(TestUsers.incorrectPassword.username, TestUsers.incorrectPassword.password);
-        loginFacade.ExpectLoginFailure(Errors.incorrectCredentials);
-    
+    unauthTest("Login with standard user navigates to inventory page", async ({ loginFacade, homePage }) => {
+        await loginFacade.loginAsStandardUser();
+        const inventoryPage = new SwagLabsInventoryPage(homePage.page);
+        expect(await inventoryPage.isVisible()).toBe(true);
     });
 
-    test("Login with standard user", async () => {
-        await loginFacade.LoginAsStandardUser();
-        const isLoggedIn = await swagLabsInventoryPage.isInventoryPageDisplayed();
-
-        expect(isLoggedIn).toBe(true);
-    });
 });

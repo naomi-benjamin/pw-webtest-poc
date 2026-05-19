@@ -1,35 +1,34 @@
-import { BasePage } from "../bases/BasePage.js";
-import type { Locator, Page } from '@playwright/test'
-
+import { BasePage } from '../bases/BasePage.js';
+import type { Page } from '@playwright/test';
 
 export class SwagLabsHomePage extends BasePage {
-    private _usernameField = this.FindElement("#user-name");
-    private _passwordField = this.FindElement("#password");
-    private _loginButton = this.FindElement("#login-button");
-    private _errorMessage = this.FindElement("div[class^='error-message-container']");
-    private _loginLogo = this.FindElement(".login_logo");
+    private usernameField = this.page.locator('#user-name');
+    private passwordField = this.page.locator('#password');
+    private loginButton = this.page.locator('#login-button');
+    private errorMessage = this.page.locator("div[class^='error-message-container']");
+    private loginLogo = this.page.locator('.login_logo');
 
-    constructor (HomePage: Page){
-        super(HomePage);
+    constructor(page: Page) {
+        super(page);
     }
 
-    async setUsername (username : string) {
-        await this.Set(this._usernameField, username)
+    async setUsername(username: string) {
+        await this.usernameField.fill(username);
     }
 
-    async setPassword (password : string) {
-        await this.Set(this._passwordField, password)
+    async setPassword(password: string) {
+        await this.passwordField.fill(password);
     }
 
-    async getErrorMessage (): Promise<string> {
-        return await this._errorMessage.textContent() || "";
+    async clickLoginButton() {
+        await this.loginButton.click();
     }
 
-    async clickLoginButton (){
-       await this.ClickOn(this._loginButton);
+    async getErrorMessage(): Promise<string> {
+        return await this.errorMessage.textContent() || '';
     }
 
-    async checkForLoginLogo(){
-        return await this._loginLogo.isVisible();
+    async isVisible(): Promise<boolean> {
+        return this.loginLogo.isVisible();
     }
 }

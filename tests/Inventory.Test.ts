@@ -1,36 +1,29 @@
-import { expect, test } from "@playwright/test";
-import { BaseTest } from "../src/bases/BaseTest.js";
-import { TestUsers } from "../src/fixtures/Credentials.js";
-import { LoginFacade } from "../src/facades/LoginFacade.js";
-import { SwagLabsInventoryPage } from "../src/pages/SwagLabsInventoryPage.js";
-import { InventoryFacade } from "../src/facades/InventoryFacade.js";
+import { test, performanceGlitchTest, expect } from '../src/fixtures/test-fixtures.js';
+import { SwagLabsHomePage } from '../src/pages/SwagLabsHomePage.js';
+import { Product } from '../src/fixtures/Product.js';
 
 test.describe("Inventory Tests", () => {
-    let base!: BaseTest;
-    let loginFacade!: LoginFacade;
-    let swagLabsInventoryPage!: SwagLabsInventoryPage;
-    let inventoryFacade!: InventoryFacade;
 
-    test.beforeEach(async ({ page }) => {
-        base = new BaseTest();
-        await base.setup(page);
-        loginFacade = new LoginFacade(base);
-        swagLabsInventoryPage = new SwagLabsInventoryPage(page);
-        inventoryFacade = new InventoryFacade(base, swagLabsInventoryPage);
+    test("Add a single item to cart increments cart badge value", async ({ inventoryFacade }) => {
+        const currentCount = await inventoryFacade.getCartCount();
+        const newCount = await inventoryFacade.addItemToCart(Product.Backpack);
+        expect(newCount).toEqual(currentCount + 1);
     });
 
-    test("Login and add a single item to cart increments cart badge value", async () => {
-        await loginFacade.LoginAsStandardUser();
-        const currentCount = await inventoryFacade.CheckCartCount();
-        const count = await inventoryFacade.AddItemToCart(swagLabsInventoryPage._addBackpackToCart);
-
-        expect(count).toEqual(currentCount + 1);
+    test("Logout from inventory page redirects to home page", async ({ inventoryFacade, page }) => {
+        await inventoryFacade.logOut();
+        const homePage = new SwagLabsHomePage(page);
+        expect(await homePage.isVisible()).toBe(true);
     });
 
-    test("Login with standard user and logout and be directed to home page", async () => {
-        await loginFacade.LoginAsStandardUser();
-        await inventoryFacade.LogOut();
+});
 
-        expect(await loginFacade.CheckIfHomePageIsVisible()).toBe(true);
+performanceGlitchTest.describe("Inventory Tests — Performance Glitch User", () => {
+
+    performanceGlitchTest("Add a single item to cart increments cart badge value", async ({ inventoryFacade }) => {
+        const currentCount = await inventoryFacade.getCartCount();
+        const newCount = await inventoryFacade.addItemToCart(Product.Backpack);
+        expect(newCount).toEqual(currentCount + 1);
     });
+
 });

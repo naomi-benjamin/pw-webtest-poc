@@ -1,28 +1,19 @@
-import type { BaseTest } from "../bases/BaseTest.js";
-import { SwagLabsInventoryPage } from "../pages/SwagLabsInventoryPage.js";
-import type { Locator } from "playwright/test";
-
-
+import { SwagLabsInventoryPage } from '../pages/SwagLabsInventoryPage.js';
+import { Product } from '../fixtures/Product.js';
 
 export class InventoryFacade {
-    private base: BaseTest;
-    private inventoryPage: SwagLabsInventoryPage;
+    constructor(private inventoryPage: SwagLabsInventoryPage) {}
 
-    constructor (base: BaseTest, inventoryPage: SwagLabsInventoryPage){
-        this.base = base;
-        this.inventoryPage =  inventoryPage;
-    }
-
-    async AddItemToCart(item: Locator){
-        await this.inventoryPage.addItemToCart(item);
-        return await this.inventoryPage.getCartBadgeValue();
-    }
-
-    async CheckCartCount(){
+    async addItemToCart(product: Product): Promise<number> {
+        await this.inventoryPage.addItemToCart(product);
         return this.inventoryPage.getCartBadgeValue();
     }
 
-    async LogOut(){
+    async getCartCount(): Promise<number> {
+        return this.inventoryPage.getCartBadgeValue();
+    }
+
+    async logOut() {
         await this.inventoryPage.openHamburgerMenu();
         await this.inventoryPage.clickLogoutButton();
     }
